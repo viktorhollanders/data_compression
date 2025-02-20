@@ -1,0 +1,55 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Compiled object files and executables
+*.o
+*.out
+*.lo
+*.la
+*.al
+*.libs
+*.a
+*.so
+*.dylib
+*.exe
+
+# Debug and crash logs
+*.dSYM/
+*.core
+*.stackdump
+
+# CMake files
+
+# Ignore the bin directory where the executable and object files are stored
+bin/
+
+# Ignore lib directory (if you have built libraries)
+lib/
+
+# Ignore any other build directories or files
+build/
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# Xcode build files
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xcworkspace/
+
+# Ignore the include directory if it contains generated or compiled files (e.g., .h files)
+# Uncomment this if you don't want to track changes in include files
+# include/
