@@ -31,11 +31,13 @@ int main(int argc, char* argv[]) {
 
   Huffman huffman;
 
-  string fileName = "test_files/test.txt";
+  string inputFile = "test_files/test.txt";
+  string outputFile = "test_files/output_test.txt";
 
 
-  huffman.count_frequency(fileName);
-  
+
+  huffman.count_frequency(inputFile);
+
   huffman.populate_pq();
   huffman.print_pq();
 
@@ -45,7 +47,7 @@ int main(int argc, char* argv[]) {
   huffman.build_symbol_table(huffman.root, huffman.byteVector);
   huffman.print_symbol_table(huffman.symbol);
 
-
+  huffman.compress(inputFile, outputFile);
 
   return 0;
 }

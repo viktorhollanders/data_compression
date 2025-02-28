@@ -40,6 +40,8 @@ class Huffman {
 
     // A function that prints the symbol table
     void print_symbol_table(map<unsigned char, vector<char>> &map);
+
+    void compress(string fileToEncode, string compressedFile);
 };
 
 #endif

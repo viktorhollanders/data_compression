@@ -1,10 +1,11 @@
 #include "huffman.h"
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 // A function that counts the frequency of bytes
 int Huffman::count_frequency(string fileName){
-  ifstream stream(fileName, ios::out | ios::binary);
+  ifstream stream(fileName, ios::in | ios::binary);
 
   if (!stream) {
     cout << "file cant be read" << endl;
@@ -36,21 +37,7 @@ void Huffman::populate_pq (){
   }
 }
 
-// A function to print the pq
-void Huffman::print_pq() {
-  priority_queue<Node*, vector<Node*>, Compare> print_q = pq;
-  while (!print_q.empty()) {
-    // get the
-    Node* topItem = print_q.top();
-    unsigned char key = topItem->byte;
-    int value = topItem->weight;
 
-    // remove the item
-    print_q.pop();
-
-    cout << key << ": " << value << endl;
-  }
-}
 
 // A function that builds the huffman tree
 void Huffman::build_huffman_tree() {
@@ -79,21 +66,6 @@ void Huffman::build_huffman_tree() {
   }
 }
 
-// A function that prints the huffman tree
-void Huffman::print_huffman_tree(Node* node, int depth = 0) {
-  if (node == nullptr) return; // Base case
-
-  // Indent based on depth to show tree structure
-  for (int i = 0; i < depth; i++) cout << "  ";
-
-  // Print node info
-  cout << "(" << node->byte << ", " << node->weight << ")" << endl;
-
-  // Recur for left and right children, increasing depth
-  print_huffman_tree(node->left, depth + 1);
-  print_huffman_tree(node->right, depth + 1);
-}
-
 // A function that builds the symbol table
 void Huffman::build_symbol_table(Node* node, vector<char>& vec) {
   // Base case: if it's a leaf node, store the code in the symbol table
@@ -113,15 +85,46 @@ void Huffman::build_symbol_table(Node* node, vector<char>& vec) {
   vec.pop_back(); // Backtrack after traversing right
 }
 
-// A function that prints the symbol table
-void Huffman::print_symbol_table(map<unsigned char, vector<char>> &map){
-  for(auto iter = map.begin(); iter != map.end(); iter++ ) {
-    string byteString = "";
+void Huffman::compress(string fileToEncode, string compressedFile) {
+  ifstream originStream(fileToEncode, ios::in | ios::binary);
+  ofstream encodeStream(compressedFile, ios::out | ios::binary);
 
-    for (int i = 0; i < iter->second.size(); i++) {
-      byteString += iter->second[i];
-    }
-
-    cout << iter->first << " " << byteString << endl;
+  if (!originStream) {
+    cout << "Error opening input file for reading!" << endl;
+    return;
   }
+
+  if (!encodeStream) {
+    cout << "Error opening output file for writing!" << endl;
+    return;
+  }
+
+  // add symbol table to map
+  for (const auto& entry : symbol ){
+    unsigned char key = entry.first;
+    const vector<char>& value = entry.second;
+
+    // add the key to the output file
+    encodeStream.write(reinterpret_cast<const char*>(&key), sizeof(key));
+
+    // add the vector to the output file
+    int size_of_value = value.size();
+    encodeStream.write(reinterpret_cast<const char*>(&value), sizeof(size_of_value));
+
+    encodeStream.write(value.data(), size_of_value);
+  }
+
+  unsigned char byte;
+  while (originStream.read(reinterpret_cast<char*>(&byte), 1)) {
+    auto entry = symbol.find(byte);
+
+    if (entry != symbol.end()) {
+      const vector<char>& bitValue = entry->second;
+      int size_of_value = bitValue.size();
+      encodeStream.write(reinterpret_cast<const char*>(&bitValue), sizeof(size_of_value));;
+    }
+  }
+
+  originStream.close();
+  encodeStream.close();
 }
