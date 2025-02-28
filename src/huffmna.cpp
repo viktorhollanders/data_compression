@@ -4,8 +4,8 @@
 using namespace std;
 
 // A function that counts the frequency of bytes
-int Huffman::count_frequency(string fileName){
-  ifstream stream(fileName, ios::in | ios::binary);
+int Huffman::count_frequency(string inputFile){
+  ifstream stream(inputFile, ios::in | ios::binary);
 
   if (!stream) {
     cout << "file cant be read" << endl;
@@ -37,8 +37,6 @@ void Huffman::populate_pq (){
   }
 }
 
-
-
 // A function that builds the huffman tree
 void Huffman::build_huffman_tree() {
   while (pq.size() > 1) {
@@ -66,11 +64,11 @@ void Huffman::build_huffman_tree() {
   }
 }
 
-// A function that builds the symbol table
+// A function that builds the symbolTable table
 void Huffman::build_symbol_table(Node* node, vector<char>& vec) {
-  // Base case: if it's a leaf node, store the code in the symbol table
+  // Base case: if it's a leaf node, store the code in the symbolTable table
   if (node->isLeaf()) {
-    symbol[node->byte] = vec;
+    symbolTable[node->byte] = vec;
     return;
   }
 
@@ -85,46 +83,97 @@ void Huffman::build_symbol_table(Node* node, vector<char>& vec) {
   vec.pop_back(); // Backtrack after traversing right
 }
 
+// A function that compresses the data
 void Huffman::compress(string fileToEncode, string compressedFile) {
-  ifstream originStream(fileToEncode, ios::in | ios::binary);
   ofstream encodeStream(compressedFile, ios::out | ios::binary);
+
+  if (!encodeStream) {
+      cout << "Error opening output file for writing!" << endl;
+      return;
+  }
+
+  int symbolTableSize = symbolTable.size();
+  encodeStream.write(reinterpret_cast<const char*>(&symbolTableSize), sizeof(symbolTableSize));
+
+  for (const auto& entry : symbolTable) {
+      unsigned char key = entry.first;
+      const vector<char>& value = entry.second;
+
+      // Write symbol (byte)
+      encodeStream.write(reinterpret_cast<const char*>(&key), sizeof(key));
+
+      // Write code length
+      int size_of_value = value.size();
+      encodeStream.write(reinterpret_cast<const char*>(&size_of_value), sizeof(size_of_value));
+
+      // Write code as a sequence of characters
+      encodeStream.write(value.data(), value.size());
+  }
+
+  ifstream originStream(fileToEncode, ios::in | ios::binary);
 
   if (!originStream) {
     cout << "Error opening input file for reading!" << endl;
     return;
   }
 
-  if (!encodeStream) {
-    cout << "Error opening output file for writing!" << endl;
-    return;
-  }
-
-  // add symbol table to map
-  for (const auto& entry : symbol ){
-    unsigned char key = entry.first;
-    const vector<char>& value = entry.second;
-
-    // add the key to the output file
-    encodeStream.write(reinterpret_cast<const char*>(&key), sizeof(key));
-
-    // add the vector to the output file
-    int size_of_value = value.size();
-    encodeStream.write(reinterpret_cast<const char*>(&value), sizeof(size_of_value));
-
-    encodeStream.write(value.data(), size_of_value);
-  }
-
   unsigned char byte;
-  while (originStream.read(reinterpret_cast<char*>(&byte), 1)) {
-    auto entry = symbol.find(byte);
 
-    if (entry != symbol.end()) {
-      const vector<char>& bitValue = entry->second;
-      int size_of_value = bitValue.size();
-      encodeStream.write(reinterpret_cast<const char*>(&bitValue), sizeof(size_of_value));;
-    }
+  while (originStream.read(reinterpret_cast<char*>(&byte), 1)) {
+    auto keyToFind = symbolTable.find(byte);
+    const vector<char>& value = keyToFind->second;
+
+    // For debugging
+    // cout << "Symbol: "  << keyToFind->first << ", Huffman Code: ";
+    // for (int i = 0; i < value.size(); i++) {
+    //   cout << value[i] << " ";
+    // }
+    // cout << endl;
+
+    // Write Huffman code length
+    int size_of_value = value.size();
+    encodeStream.write(reinterpret_cast<const char*>(&size_of_value), sizeof(size_of_value));
+
+    // Write Huffman code as a sequence of characters
+    encodeStream.write(value.data(), value.size());
   }
 
   originStream.close();
   encodeStream.close();
+}
+
+
+void Huffman::decompress(string compressedFile, string outputFile) {
+  ifstream compressedStream(compressedFile, ios::in | ios::binary);
+
+  if (!compressedStream) {
+    cout << "Error opening input file for reading!" << endl;
+    return;
+  }
+
+  int symbolTableSize;
+  compressedStream.read(reinterpret_cast<char*>(&symbolTableSize), sizeof(symbolTableSize));
+
+
+  for (int i = 0; i < symbolTableSize; i++) {
+    unsigned char key;
+    int sizeOfValue;
+    vector<char> value;
+
+    compressedStream.read(reinterpret_cast<char*>(&key), sizeof(key));
+    compressedStream.read(reinterpret_cast<char*>(&sizeOfValue), sizeof(sizeOfValue));
+
+    value.resize(sizeOfValue);
+    compressedStream.read(value.data(), sizeOfValue);
+
+    symbolTable[key] = value;
+
+    // std::cout << "Symbol: " << key << ", Huffman Code: ";
+    // for (char c : value) {
+    // cout << c;
+    // }
+    // cout << std::endl;
+  }
+
+  
 }

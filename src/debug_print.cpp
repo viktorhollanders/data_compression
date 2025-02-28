@@ -30,7 +30,7 @@ void Huffman::print_huffman_tree(Node* node, int depth = 0) {
   print_huffman_tree(node->right, depth + 1);
 }
 
-// A function that prints the symbol table
+// A function that prints the symbolTable table
 void Huffman::print_symbol_table(map<unsigned char, vector<char>> &map){
   for(auto iter = map.begin(); iter != map.end(); iter++ ) {
     string byteString = "";

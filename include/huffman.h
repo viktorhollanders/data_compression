@@ -16,12 +16,12 @@ class Huffman {
   public:
   priority_queue<Node*, vector<Node*>, Compare> pq;
   Node* root;
-  map<unsigned char, vector<char>> symbol;
+  map<unsigned char, vector<char>> symbolTable;
   vector<char> byteVector;
 
 
     /* A function that counts the frequency of bytes */
-    int count_frequency(string fileName);
+    int count_frequency(string inputFile);
 
     /* A function to populate the pq */
     void populate_pq ();
@@ -35,13 +35,20 @@ class Huffman {
     /* A functoin that prints the tree */
     void print_huffman_tree(Node* node, int depth);
 
-    /* A function that builds the symbol table */
+    /* A function that builds the symbolTable table */
     void build_symbol_table(Node* node, vector<char> &vec);
 
-    // A function that prints the symbol table
+    /* A function that prints the symbolTable table */
     void print_symbol_table(map<unsigned char, vector<char>> &map);
 
+    /* A function to compress the file */
     void compress(string fileToEncode, string compressedFile);
+
+   void build_huffman_tree_decompress();
+
+    /* A function to decompress the file */
+    void decompress(string compressedFile, string outputFile);
+
 };
 
 #endif
