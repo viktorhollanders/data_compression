@@ -53,3 +53,6 @@ xcuserdata/
 # Ignore the include directory if it contains generated or compiled files (e.g., .h files)
 # Uncomment this if you don't want to track changes in include files
 # include/
+
+#ignore test dir
+tes_files/
