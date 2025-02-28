@@ -12,12 +12,12 @@ using namespace std;
 
 class Huffman {
   map<unsigned char, int> frequency;
-  priority_queue<Node*, vector<Node*>, Compare> pq;
-  map<unsigned char, vector<char>> symbol;
 
   public:
-    Node* root;
-    vector<char> byteVector;
+  priority_queue<Node*, vector<Node*>, Compare> pq;
+  Node* root;
+  map<unsigned char, vector<char>> symbol;
+  vector<char> byteVector;
 
 
     /* A function that counts the frequency of bytes */
@@ -36,10 +36,10 @@ class Huffman {
     void print_huffman_tree(Node* node, int depth);
 
     /* A function that builds the symbol table */
-    void build_symbol_table(Node* node, vector<char> vec);
+    void build_symbol_table(Node* node, vector<char> &vec);
 
     // A function that prints the symbol table
-    void print_symbol_table();
+    void print_symbol_table(map<unsigned char, vector<char>> &map);
 };
 
 #endif

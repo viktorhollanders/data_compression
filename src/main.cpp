@@ -35,13 +35,15 @@ int main(int argc, char* argv[]) {
 
 
   huffman.count_frequency(fileName);
+  
   huffman.populate_pq();
-  huffman.build_huffman_tree();
-  huffman.build_symbol_table(huffman.root, huffman.byteVector);
+  huffman.print_pq();
 
+  huffman.build_huffman_tree();
   huffman.print_huffman_tree(huffman.root, 0);
 
-  
+  huffman.build_symbol_table(huffman.root, huffman.byteVector);
+  huffman.print_symbol_table(huffman.symbol);
 
 
 
