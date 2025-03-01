@@ -1,25 +1,26 @@
 CXX = g++
 CXXFLAGS = -Wall -std=c++11
-CXXDEBUGFLAGS = -ggdb -fsanitize=address 
+CXXDEBUGFLAGS = -ggdb -fsanitize=address
 
 SRC     := src
 INCLUDE := include
 LIB     := lib
 LIBRARIES :=
-EXECUTABLE := main
+EXECUTABLE := encoder
+OUTPUTDIR := output
 
 .PHONY: all run debug clean fresh test
 
-all: $(SRC)/$(EXECUTABLE)
+all: $(EXECUTABLE)
 
-$(SRC)/$(EXECUTABLE): $(SRC)/*.cpp
+$(EXECUTABLE): $(SRC)/*.cpp
 	@echo "🔧 Building..."
 	$(CXX) $(CXXFLAGS) -I$(INCLUDE) $^ -o $@
 
 run: clean all
 	@clear
 	@echo "🚀 Executing..."
-	@./$(SRC)/$(EXECUTABLE)
+	@./$(EXECUTABLE)
 
 test:
 
@@ -29,4 +30,6 @@ debug: fresh all
 
 clean:
 	@echo "🧹 Clearing..."
-	-rm -f $(SRC)/$(EXECUTABLE)
+	-rm -f $(EXECUTABLE)
+	-rm -rf $(OUTPUTDIR)/*
+

@@ -12,8 +12,11 @@ using namespace std;
 
 class Huffman {
   map<unsigned char, int> frequency;
+  /* A helper functoin that rebuilds the symbol table from the compressed data */
   void rebuild_symbol_table(ifstream& inStream);
+  /* A helper functoin that rebuilds the Huffman tree from the compressed data */
   void rebuild_huffman_tree();
+  /* A helper functoin that writes the data to a file */
   void write_to_file(ifstream& inStream, ofstream& outStream);
 
   public:

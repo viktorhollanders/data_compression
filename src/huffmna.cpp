@@ -7,11 +7,6 @@ using namespace std;
 int Huffman::count_frequency(string inputFile){
   ifstream stream(inputFile, ios::in | ios::binary);
 
-  if (!stream) {
-    cout << "file cant be read" << endl;
-    return 1;
-  }
-
   unsigned char byte;
   while (stream.read(reinterpret_cast<char*>(&byte), 1)) {
     if (frequency.count(byte)) {
@@ -87,7 +82,7 @@ void Huffman::compress(string fileToEncode, string compressedFile) {
   ofstream encodeStream(compressedFile, ios::out | ios::binary);
 
   if (!encodeStream) {
-      cout << "Error opening output file for writing!" << endl;
+      cout << "Error opening output file to encode for writing!" << endl;
       return;
   }
 
@@ -112,7 +107,7 @@ void Huffman::compress(string fileToEncode, string compressedFile) {
   ifstream originStream(fileToEncode, ios::in | ios::binary);
 
   if (!originStream) {
-    cout << "Error opening input file for reading!" << endl;
+    cout << "Error opening encoded file for reading!" << endl;
     return;
   }
 
@@ -135,6 +130,7 @@ void Huffman::compress(string fileToEncode, string compressedFile) {
   encodeStream.close();
 }
 
+// A function that reconstructs the Huffman tree from the decompressed file
 void reconstruct_huffman_tree(Node* root, map<unsigned char, vector<char>> table, vector<char> bitString) {
   root = new Node();
   for(auto iter = table.begin(); iter != table.end(); iter++ ) {
@@ -159,7 +155,7 @@ void reconstruct_huffman_tree(Node* root, map<unsigned char, vector<char>> table
   }
 }
 
-
+// A helper function that rebuild the symbol table
 void Huffman::rebuild_symbol_table(ifstream& inStream) {
   int symbolTableSize;
   inStream.read(reinterpret_cast<char*>(&symbolTableSize), sizeof(symbolTableSize));
@@ -180,6 +176,7 @@ void Huffman::rebuild_symbol_table(ifstream& inStream) {
   }
 }
 
+// A functoin that rebuilds the Huffman tree from the compressed data
 void Huffman::rebuild_huffman_tree() {
   root = new Node();
   for(auto iter = symbolTable.begin(); iter != symbolTable.end(); iter++ ) {
@@ -204,6 +201,7 @@ void Huffman::rebuild_huffman_tree() {
   }
 }
 
+// A helper functoin that writes to the file
 void Huffman::write_to_file(ifstream& inStream, ofstream& outStream) {
   Node* walk_node = root;
 
@@ -223,6 +221,7 @@ void Huffman::write_to_file(ifstream& inStream, ofstream& outStream) {
   }
 }
 
+//A function that decompresses the file
 void Huffman::decompress(string compressedFile, string outputFile) {
   ifstream compressedStream(compressedFile, ios::in | ios::binary);
 
@@ -232,11 +231,12 @@ void Huffman::decompress(string compressedFile, string outputFile) {
   }
 
   Huffman::rebuild_symbol_table(compressedStream);
-  Huffman::build_huffman_tree();
+  Huffman::rebuild_huffman_tree();
 
   ofstream outStream(outputFile);
 
   Huffman::write_to_file(compressedStream, outStream);
+  cout << "writing to file" << endl;
 
   compressedStream.close();
   outStream.close();
