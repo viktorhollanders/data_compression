@@ -13,7 +13,6 @@ int Huffman::count_frequency(string inputFile){
   }
 
   unsigned char byte;
-
   while (stream.read(reinterpret_cast<char*>(&byte), 1)) {
     if (frequency.count(byte)) {
       frequency[byte] += 1;
@@ -75,12 +74,12 @@ void Huffman::build_symbol_table(Node* node, vector<char>& vec) {
   // Traverse left: append '0' for left child
   vec.push_back('0');
   build_symbol_table(node->left, vec);
-  vec.pop_back(); // Backtrack after traversing left
+  vec.pop_back();
 
   // Traverse right: append '1' for right child
   vec.push_back('1');
   build_symbol_table(node->right, vec);
-  vec.pop_back(); // Backtrack after traversing right
+  vec.pop_back();
 }
 
 // A function that compresses the data
@@ -123,12 +122,6 @@ void Huffman::compress(string fileToEncode, string compressedFile) {
     auto keyToFind = symbolTable.find(byte);
     const vector<char>& value = keyToFind->second;
 
-    // For debugging
-    // cout << "Symbol: "  << keyToFind->first << ", Huffman Code: ";
-    // for (int i = 0; i < value.size(); i++) {
-    //   cout << value[i] << " ";
-    // }
-    // cout << endl;
 
     // Write Huffman code length
     int size_of_value = value.size();
@@ -142,6 +135,93 @@ void Huffman::compress(string fileToEncode, string compressedFile) {
   encodeStream.close();
 }
 
+void reconstruct_huffman_tree(Node* root, map<unsigned char, vector<char>> table, vector<char> bitString) {
+  root = new Node();
+  for(auto iter = table.begin(); iter != table.end(); iter++ ) {
+    bitString = iter->second;
+
+    Node* current_node = root;
+
+    for (auto bit : bitString ) {
+      if (bit == '1') {
+        if (!current_node->right) {
+          current_node->right = new Node();
+        }
+        current_node = current_node->right;
+      } else {
+        if (!current_node->left) {
+          current_node->left = new Node();
+        }
+        current_node = current_node->left;
+      }
+    }
+    current_node->byte = iter->first;
+  }
+}
+
+
+void Huffman::rebuild_symbol_table(ifstream& inStream) {
+  int symbolTableSize;
+  inStream.read(reinterpret_cast<char*>(&symbolTableSize), sizeof(symbolTableSize));
+
+
+  for (int i = 0; i < symbolTableSize; i++) {
+    unsigned char key;
+    int sizeOfValue;
+    vector<char> value;
+
+    inStream.read(reinterpret_cast<char*>(&key), sizeof(key));
+    inStream.read(reinterpret_cast<char*>(&sizeOfValue), sizeof(sizeOfValue));
+
+    value.resize(sizeOfValue);
+    inStream.read(value.data(), sizeOfValue);
+
+    symbolTable[key] = value;
+  }
+}
+
+void Huffman::rebuild_huffman_tree() {
+  root = new Node();
+  for(auto iter = symbolTable.begin(); iter != symbolTable.end(); iter++ ) {
+    bitVector = iter->second;
+
+    Node* current_node = root;
+
+    for (auto bit : bitVector ) {
+      if (bit == '1') {
+        if (!current_node->right) {
+          current_node->right = new Node();
+        }
+        current_node = current_node->right;
+      } else {
+        if (!current_node->left) {
+          current_node->left = new Node();
+        }
+        current_node = current_node->left;
+      }
+    }
+    current_node->byte = iter->first;
+  }
+}
+
+void Huffman::write_to_file(ifstream& inStream, ofstream& outStream) {
+  Node* walk_node = root;
+
+  unsigned char byte;
+
+  while(inStream.read(reinterpret_cast<char*>(&byte), 1)) {
+    if (byte == '1') {
+      walk_node = walk_node->right;
+    } else if (byte == '0') {
+      walk_node = walk_node->left;
+    }
+
+    if (walk_node->isLeaf()) {
+      outStream << walk_node->byte;
+      walk_node = root;
+    }
+  }
+}
 
 void Huffman::decompress(string compressedFile, string outputFile) {
   ifstream compressedStream(compressedFile, ios::in | ios::binary);
@@ -151,29 +231,13 @@ void Huffman::decompress(string compressedFile, string outputFile) {
     return;
   }
 
-  int symbolTableSize;
-  compressedStream.read(reinterpret_cast<char*>(&symbolTableSize), sizeof(symbolTableSize));
+  Huffman::rebuild_symbol_table(compressedStream);
+  Huffman::build_huffman_tree();
 
+  ofstream outStream(outputFile);
 
-  for (int i = 0; i < symbolTableSize; i++) {
-    unsigned char key;
-    int sizeOfValue;
-    vector<char> value;
+  Huffman::write_to_file(compressedStream, outStream);
 
-    compressedStream.read(reinterpret_cast<char*>(&key), sizeof(key));
-    compressedStream.read(reinterpret_cast<char*>(&sizeOfValue), sizeof(sizeOfValue));
-
-    value.resize(sizeOfValue);
-    compressedStream.read(value.data(), sizeOfValue);
-
-    symbolTable[key] = value;
-
-    // std::cout << "Symbol: " << key << ", Huffman Code: ";
-    // for (char c : value) {
-    // cout << c;
-    // }
-    // cout << std::endl;
-  }
-
-  
+  compressedStream.close();
+  outStream.close();
 }

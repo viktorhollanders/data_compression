@@ -12,12 +12,15 @@ using namespace std;
 
 class Huffman {
   map<unsigned char, int> frequency;
+  void rebuild_symbol_table(ifstream& inStream);
+  void rebuild_huffman_tree();
+  void write_to_file(ifstream& inStream, ofstream& outStream);
 
   public:
   priority_queue<Node*, vector<Node*>, Compare> pq;
   Node* root;
   map<unsigned char, vector<char>> symbolTable;
-  vector<char> byteVector;
+  vector<char> bitVector;
 
 
     /* A function that counts the frequency of bytes */
@@ -44,7 +47,7 @@ class Huffman {
     /* A function to compress the file */
     void compress(string fileToEncode, string compressedFile);
 
-   void build_huffman_tree_decompress();
+   void build_huffman_tree_decompress(map<unsigned char, vector<char>> symbolTable);
 
     /* A function to decompress the file */
     void decompress(string compressedFile, string outputFile);

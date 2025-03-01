@@ -9,9 +9,6 @@ struct Node
   int weight;
   unsigned char byte;
   Node(): parent(nullptr), left(nullptr), right(nullptr){}
-  bool isRoot() {
-    return parent == nullptr;
-  }
   bool isLeaf() {
     return left == nullptr && right == nullptr;
   };

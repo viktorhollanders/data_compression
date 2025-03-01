@@ -18,22 +18,13 @@ int main(int argc, char* argv[]) {
 
 
   huffman.count_frequency(inputFile);
-
   huffman.populate_pq();
-  // huffman.print_pq();
-
   huffman.build_huffman_tree();
-  // huffman.print_huffman_tree(huffman.root, 0);
-
-  huffman.build_symbol_table(huffman.root, huffman.byteVector);
-  // huffman.print_symbol_table(huffman.symbolTable);
-
+  huffman.build_symbol_table(huffman.root, huffman.bitVector);
   huffman.compress(inputFile, compressFile);
-  cout << "compresed sucseffulty" << endl;
-
   huffman.decompress(compressFile, outputFile);
 
-  cout << "decompressed sucseffulty" << endl;
+  
 
 
   return 0;
