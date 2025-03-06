@@ -16,6 +16,18 @@ To build the project, run:
   make
 ```
 
+To create a debug version, run:
+
+```sh
+  make debug
+```
+
+To clean the project, run:
+
+```sh
+  make clean
+```
+
 ## Runing the project
 
 The project can be run in three modes.
@@ -39,23 +51,5 @@ Decode Mode: Decodes a file. This mode takes three arguments: the mode -d, the e
 
 The `output` directory in the project can be used to store the files if needed.
 
-## Make file comands
 
-The project also contains a Makefile for building, cleaning up, and generating a file with debug symbols that can be run with `lldb` on macOS or `gdb` on Linux.
-To build the project, run:
 
-```sh
-  make
-```
-
-To create a debug version, run:
-
-```sh
-  make debug
-```
-
-To clean the project, run:
-
-```sh
-  make clean
-```
